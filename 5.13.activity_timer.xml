@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#000000"
+    tools:context="org.androidtown.offerproject.Timer">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="100dp">
+
+        <TextView
+            android:text="minute"
+            android:textSize="20dp"
+            android:textStyle="bold"
+            android:layout_marginLeft="60dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <TextView
+            android:text="second"
+            android:textSize="20dp"
+            android:textStyle="bold"
+            android:layout_marginLeft="100dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="0dp">
+
+        <!--<EditText
+            android:id="@+id/minuteinput"
+            android:layout_width="100dp"
+            android:layout_height="80dp"
+            android:layout_alignTop="@+id/clock"
+            android:layout_marginEnd="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginStart="40dp"
+            android:layout_toLeftOf="@+id/clock"
+            android:layout_toStartOf="@+id/clock"
+            android:ems="10"
+            android:inputType="number"
+            android:text="00"
+            android:layout_marginLeft="40dp" />-->
+
+        <ListView
+            android:id="@+id/list_minute"
+            android:layout_marginLeft="45dp"
+            android:layout_width="100dp"
+            android:layout_height="150dp">
+
+        </ListView>
+
+
+        <TextView
+            android:id="@+id/clock"
+            android:layout_width="30dp"
+            android:layout_height="74dp"
+            android:layout_below="@+id/pause"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="30dp"
+            android:layout_marginLeft="15dp"
+            android:text=":"
+            android:gravity="center"
+            android:textSize="50sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+
+
+        <ListView
+            android:id="@+id/list_second"
+            android:layout_marginLeft="15dp"
+            android:layout_width="100dp"
+            android:layout_height="150dp">
+
+        </ListView>
+
+
+        <!--<EditText
+            android:id="@+id/secondinput"
+            android:layout_width="100dp"
+            android:layout_height="80dp"
+            android:layout_alignTop="@+id/clock"
+            android:layout_marginEnd="50dp"
+            android:layout_marginLeft="13dp"
+            android:layout_marginStart="13dp"
+            android:layout_toEndOf="@+id/clock"
+            android:layout_toRightOf="@+id/clock"
+            android:ems="10"
+            android:inputType="number"
+            android:text="00"
+            android:layout_marginRight="50dp" />-->
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        >
+
+        <TextView
+            android:id="@+id/text_minute"
+            android:text="0"
+            android:textStyle="bold"
+            android:textSize="20dp"
+            android:gravity="center"
+            android:layout_marginLeft="60dp"
+            android:layout_width="60dp"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/text_second"
+            android:text="0"
+            android:textStyle="bold"
+            android:textSize="20dp"
+            android:gravity="center"
+            android:layout_marginLeft="100dp"
+            android:layout_width="60dp"
+            android:layout_height="wrap_content" />
+
+    </LinearLayout>
+
+
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="100dp">
+
+
+        <Button
+            android:id="@+id/start"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@+id/pause"
+            android:layout_marginStart="50dp"
+            android:layout_toEndOf="@+id/clock"
+            android:layout_toRightOf="@+id/clock"
+            android:text="start"
+            android:onClick="startTimer"
+            android:layout_marginLeft="50dp" />
+
+        <Button
+            android:id="@+id/clear"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_toLeftOf="@+id/start"
+            android:layout_toStartOf="@+id/start"
+            android:text="초기화" />
+
+    </LinearLayout>
+
+
+
+</LinearLayout>
