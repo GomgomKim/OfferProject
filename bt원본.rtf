@@ -1,0 +1,354 @@
+{\rtf1\ansi\ansicpg949\deff0\nouicompat\deflang1033\deflangfe1042{\fonttbl{\f0\fnil\fcharset0 Consolas;}{\f1\fnil ???;}{\f2\fnil\fcharset129 ???;}{\f3\fnil\fcharset129 \'b8\'bc\'c0\'ba \'b0\'ed\'b5\'f1;}}
+{\colortbl ;\red127\green0\blue85;\red0\green0\blue0;\red41\green0\blue255;\red0\green128\blue0;\red255\green255\blue255;}
+{\*\generator Riched20 10.0.14393}\viewkind4\uc1 
+\pard\cf1\b\f0\fs16 package\b0  \cf2 com.example.bt_servo;\par
+\par
+\cf1\b import\b0  \cf2 android.app.Activity;\par
+\cf1\b import\b0  \cf2 android.app.AlertDialog;\par
+\cf1\b import\b0  \cf2 android.app.AlertDialog.Builder;\par
+\cf1\b import\b0  \cf2 android.bluetooth.BluetoothAdapter;\par
+\cf1\b import\b0  \cf2 android.bluetooth.BluetoothDevice;\par
+\cf1\b import\b0  \cf2 android.bluetooth.BluetoothSocket;\par
+\cf1\b import\b0  \cf2 android.content.DialogInterface;\par
+\cf1\b import\b0  \cf2 android.content.DialogInterface.OnClickListener;\par
+\cf1\b import\b0  \cf2 android.content.Intent;\par
+\cf1\b import\b0  \cf2 android.hardware.Sensor;\par
+\cf1\b import\b0  \cf2 android.hardware.SensorEvent;\par
+\cf1\b import\b0  \cf2 android.hardware.SensorEventListener;\par
+\cf1\b import\b0  \cf2 android.hardware.SensorManager;\par
+\cf1\b import\b0  \cf2 android.os.Bundle;\par
+\cf1\b import\b0  \cf2 android.view.Menu;\par
+\cf1\b import\b0  \cf2 android.view.MenuInflater;\par
+\cf1\b import\b0  \cf2 android.view.View;\par
+\cf1\b import\b0  \cf2 android.view.View.OnClickListener;\par
+\cf1\b import\b0  \cf2 android.widget.Button;\par
+\cf1\b import\b0  \cf2 android.widget.Toast;\par
+\cf1\b import\b0  \cf2 android.widget.ToggleButton;\par
+\cf1\b import\b0  \cf2 java.io.InputStream;\par
+\cf1\b import\b0  \cf2 java.io.OutputStream;\par
+\cf1\b import\b0  \cf2 java.util.ArrayList;\par
+\cf1\b import\b0  \cf2 java.util.Iterator;\par
+\cf1\b import\b0  \cf2 java.util.List;\par
+\cf1\b import\b0  \cf2 java.util.Set;\par
+\cf1\b import\b0  \cf2 java.util.UUID;\par
+\par
+\cf1\b public\b0  \b class\b0  \cf2 MainActivity\par
+  \cf1\b extends\b0  \cf2 Activity\par
+  \cf1\b implements\b0  \cf2 SensorEventListener\par
+\{\par
+  \cf1\b static\b0  \b final\b0  \b int\b0  \cf2 REQUEST_ENABLE_BT = 10;\par
+  Sensor accelerometer;\par
+  \cf1\b boolean\b0  \cf2 angleFlag = \cf1\b false\cf2\b0 ;\par
+  \cf1\b int\b0  \cf2 data = 0;\par
+  \cf1\b int\cf2\b0 [] intTemp = \cf1\b new\b0  \b int\cf2\b0 [3];\par
+  BluetoothAdapter mBluetoothAdapter;\par
+  \cf1\b char\b0  \cf2 mCharDelimiter = \cf3 '\\n'\cf2 ;\par
+  Set<BluetoothDevice> mDevices;\par
+  Button mEdit0;\par
+  Button mEdit135;\par
+  Button mEdit180;\par
+  Button mEdit45;\par
+  Button mEdit90;\par
+  ToggleButton mEditBack;\par
+  \cf1\b float\cf2\b0 [] mGeomagnetic;\par
+  \cf1\b float\cf2\b0 [] mGravity;\par
+  InputStream mInputStream = \cf1\b null\cf2\b0 ;\par
+  OutputStream mOutputStream = \cf1\b null\cf2\b0 ;\par
+  \cf1\b int\b0  \cf2 mPairedDeviceCount = 0;\par
+  BluetoothDevice mRemoteDevice;\par
+  \cf1\b private\b0  \cf2 SensorManager mSensorManager;\par
+  BluetoothSocket mSocket = \cf1\b null\cf2\b0 ;\par
+  String mStrDelimiter = \cf3 "\\n"\cf2 ;\par
+  Thread mWorkerThread = \cf1\b null\cf2\b0 ;\par
+  Sensor magnetometer;\par
+  \cf1\b float\b0  \cf2 pitch;\par
+  \cf1\b byte\cf2\b0 [] readBuffer;\par
+  \cf1\b int\b0  \cf2 readBufferPosition;\par
+  String[] temp;\par
+  \par
+  \cf1\b void\b0  \cf2 checkBluetooth()\par
+  \{\par
+    \cf1\b this\cf2\b0 .\ul mBluetoothAdapter\ulnone  = BluetoothAdapter.getDefaultAdapter();\par
+    \cf1\b if\b0  \cf2 (\cf1\b this\cf2\b0 .\ul mBluetoothAdapter\ulnone  == \cf1\b null\cf2\b0 )\par
+    \{\par
+
+\pard\box\brdrdash\brdrw0 \cbpat5       Toast.makeText(getApplicationContext(), \cf4\b\f1\fs18 "\f2\'b1\'e2\'b1\'e2\'b0\'a1 \'ba\'ed\'b7\'e7\'c5\'f5\'bd\'ba\'b8\'a6 \'c1\'f6\'bf\'f8\'c7\'cf\'c1\'f6 \'be\'ca\'bd\'c0\'b4\'cf\'b4\'d9."\par
+
+\pard\cf2\b0\f0\fs16 1).show();\par
+      finish();\par
+      \cf1\b return\cf2\b0 ;\par
+    \}\par
+    \cf1\b if\b0  \cf2 (!\cf1\b this\cf2\b0 .\ul mBluetoothAdapter\ulnone .isEnabled())\par
+    \{\par
+
+\pard\box\brdrdash\brdrw0 \cbpat5       Toast.makeText(getApplicationContext(), \cf4\b\f1\fs18 "\f2\'c7\'f6\'c0\'e7 \'ba\'ed\'b7\'e7\'c5\'f5\'bd\'ba\'b0\'a1 \'ba\'f1\'c8\'b0\'bc\'ba\'c8\'ad \'bb\'f3\'c5\'c2\'c0\'d4\'b4\'cf\'b4\'d9."\par
+
+\pard\cf2\b0\f0\fs16 , 1).show();\par
+      startActivityForResult(\cf1\b new\b0  \cf2 Intent(\cf3 "android.bluetooth.adapter.action.REQUEST_ENABLE"\cf2 ), 10);\par
+      \cf1\b return\cf2\b0 ;\par
+    \}\par
+    \ul selectDevice\ulnone ();\par
+  \}\par
+  \par
+  \cf1\b void\b0  \cf2 connectToSelectedDevice(String paramString)\par
+  \{\par
+    \cf1\b this\cf2\b0 .\ul mRemoteDevice\ulnone  = \ul getDeviceFromBondedList\ulnone (paramString);\par
+    paramString = UUID.fromString(\cf3 "00001101-0000-1000-8000-00805f9b34fb"\cf2 );\par
+    \cf1\b try\par
+\b0     \cf2\{\par
+      \cf1\b this\cf2\b0 .\ul mSocket\ulnone  = \cf1\b this\cf2\b0 .\ul mRemoteDevice\ulnone .createRfcommSocketToServiceRecord(paramString);\par
+      \cf1\b this\cf2\b0 .\ul mSocket\ulnone .connect();\par
+      \cf1\b this\cf2\b0 .\ul mOutputStream\ulnone  = \cf1\b this\cf2\b0 .\ul mSocket\ulnone .getOutputStream();\par
+      \cf1\b this\cf2\b0 .\ul mInputStream\ulnone  = \cf1\b this\cf2\b0 .\ul mSocket\ulnone .getInputStream();\par
+      \ul sendData\ulnone (\cf3 "t"\cf2 );\par
+      \cf1\b return\cf2\b0 ;\par
+    \}\par
+    \cf1\b catch\b0  \cf2 (Exception paramString)\par
+    \{\par
+
+\pard\box\brdrdash\brdrw0 \cbpat5       Toast.makeText(getApplicationContext(), \cf4\b\f1\fs18 "\f2\'ba\'ed\'b7\'e7\'c5\'f5\'bd\'ba \'bf\'ac\'b0\'e1 \'c1\'df \'bf\'c0\'b7\'f9 \'b9\'df\'bb\'fd"\cf2\b0\f0\fs16 1).show();\par
+
+\pard       finish();\par
+    \}\par
+  \}\par
+  \par
+  BluetoothDevice getDeviceFromBondedList(String paramString)\par
+  \{\par
+    Iterator localIterator = \cf1\b this\cf2\b0 .\ul mDevices\ulnone .iterator();\par
+    BluetoothDevice localBluetoothDevice;\par
+    \cf1\b do\par
+\b0     \cf2\{\par
+      \cf1\b if\b0  \cf2 (!localIterator.hasNext()) \{\par
+        \cf1\b return\b0  \b null\cf2\b0 ;\par
+      \}\par
+      localBluetoothDevice = (BluetoothDevice)localIterator.next();\par
+    \} \cf1\b while\b0  \cf2 (!paramString.equals(localBluetoothDevice.getName()));\par
+    \cf1\b return\b0  \cf2 localBluetoothDevice;\par
+  \}\par
+  \par
+  \cf1\b public\b0  \b void\b0  \cf2 onAccuracyChanged(Sensor paramSensor, \cf1\b int\b0  \cf2 paramInt) \{\}\par
+  \par
+  \cf1\b protected\b0  \b void\b0  \cf2 onActivityResult(\cf1\b int\b0  \cf2 paramInt1, \cf1\b int\b0  \cf2 paramInt2, Intent paramIntent)\par
+  \{\par
+    \cf1\b switch\b0  \cf2 (paramInt1)\par
+    \{\par
+    \}\par
+    \cf1\b for\b0  \cf2 (;;)\par
+    \{\par
+      \cf1\b super\cf2\b0 .onActivityResult(paramInt1, paramInt2, paramIntent);\par
+      \cf1\b return\cf2\b0 ;\par
+      \cf1\b if\b0  \cf2 (paramInt2 == -1)\par
+      \{\par
+        \ul selectDevice\ulnone ();\par
+      \}\par
+      \cf1\b else\b0  \b if\b0  \cf2 (paramInt2 == 0)\par
+      \{\par
+
+\pard\box\brdrdash\brdrw0 \cbpat5         Toast.makeText(getApplicationContext(), \cf4\b\f1\fs18 "\f2\'ba\'ed\'b7\'e7\'c5\'f5\'bd\'ba\'b8\'a6 \'bb\'e7\'bf\'eb\'c7\'d2 \'bc\'f6 \'be\'f8\'be\'ee \'c1\'be\'b7\'e1\'c7\'d5\'b4\'cf\'b4\'d9."\cf2\b0\f0\fs16 , 1).show();\par
+
+\pard         finish();\par
+      \}\par
+    \}\par
+  \}\par
+  \par
+  \cf1\b protected\b0  \b void\b0  \cf2 onCreate(Bundle paramBundle)\par
+  \{\par
+    \cf1\b super\cf2\b0 .onCreate(paramBundle);\par
+    setContentView(2130903064);\par
+    \cf1\b this\cf2\b0 .\ul mSensorManager\ulnone  = ((SensorManager)getSystemService(\cf3 "sensor"\cf2 ));\par
+    \cf1\b this\cf2\b0 .\ul accelerometer\ulnone  = \cf1\b this\cf2\b0 .\ul mSensorManager\ulnone .getDefaultSensor(1);\par
+    \cf1\b this\cf2\b0 .\ul magnetometer\ulnone  = \cf1\b this\cf2\b0 .\ul mSensorManager\ulnone .getDefaultSensor(2);\par
+    \cf1\b this\cf2\b0 .\ul mEditBack\ulnone  = ((ToggleButton)findViewById(2131034177));\par
+    \cf1\b this\cf2\b0 .\ul mEdit0\ulnone  = ((Button)findViewById(2131034172));\par
+    \cf1\b this\cf2\b0 .\ul mEdit45\ulnone  = ((Button)findViewById(2131034173));\par
+    \cf1\b this\cf2\b0 .\ul mEdit90\ulnone  = ((Button)findViewById(2131034176));\par
+    \cf1\b this\cf2\b0 .\ul mEdit135\ulnone  = ((Button)findViewById(2131034175));\par
+    \cf1\b this\cf2\b0 .\ul mEdit180\ulnone  = ((Button)findViewById(2131034174));\par
+    \cf1\b this\cf2\b0 .\ul mEditBack\ulnone .setOnClickListener(\cf1\b new\b0  \cf2 View.OnClickListener()\par
+    \{\par
+      \cf1\b public\b0  \b void\b0  \cf2 onClick(View paramAnonymousView)\par
+      \{\par
+        \cf1\b if\b0  \cf2 (\ul MainActivity\ulnone .\cf1\b this\cf2\b0 .\ul mEditBack\ulnone .isChecked())\par
+        \{\par
+          \ul MainActivity\ulnone .\cf1\b this\cf2\b0 .\ul angleFlag\ulnone  = \cf1\b true\cf2\b0 ;\par
+          \cf1\b return\cf2\b0 ;\par
+        \}\par
+        \ul MainActivity\ulnone .\cf1\b this\cf2\b0 .\ul angleFlag\ulnone  = \cf1\b false\cf2\b0 ;\par
+      \}\par
+    \});\par
+    \cf1\b this\cf2\b0 .\ul mEdit0\ulnone .setOnClickListener(\cf1\b new\b0  \cf2 View.OnClickListener()\par
+    \{\par
+      \cf1\b public\b0  \b void\b0  \cf2 onClick(View paramAnonymousView)\par
+      \{\par
+        \ul MainActivity\ulnone .\cf1\b this\cf2\b0 .\ul sendData\ulnone (\cf3 "j"\cf2 );\par
+      \}\par
+    \});\par
+    \cf1\b this\cf2\b0 .\ul mEdit45\ulnone .setOnClickListener(\cf1\b new\b0  \cf2 View.OnClickListener()\par
+    \{\par
+      \cf1\b public\b0  \b void\b0  \cf2 onClick(View paramAnonymousView)\par
+      \{\par
+        \ul MainActivity\ulnone .\cf1\b this\cf2\b0 .\ul sendData\ulnone (\cf3 "i"\cf2 );\par
+      \}\par
+    \});\par
+    \cf1\b this\cf2\b0 .\ul mEdit90\ulnone .setOnClickListener(\cf1\b new\b0  \cf2 View.OnClickListener()\par
+    \{\par
+      \cf1\b public\b0  \b void\b0  \cf2 onClick(View paramAnonymousView)\par
+      \{\par
+        \ul MainActivity\ulnone .\cf1\b this\cf2\b0 .\ul sendData\ulnone (\cf3 "k"\cf2 );\par
+      \}\par
+    \});\par
+    \cf1\b this\cf2\b0 .\ul mEdit135\ulnone .setOnClickListener(\cf1\b new\b0  \cf2 View.OnClickListener()\par
+    \{\par
+      \cf1\b public\b0  \b void\b0  \cf2 onClick(View paramAnonymousView)\par
+      \{\par
+        \ul MainActivity\ulnone .\cf1\b this\cf2\b0 .\ul sendData\ulnone (\cf3 "o"\cf2 );\par
+      \}\par
+    \});\par
+    \cf1\b this\cf2\b0 .\ul mEdit180\ulnone .setOnClickListener(\cf1\b new\b0  \cf2 View.OnClickListener()\par
+    \{\par
+      \cf1\b public\b0  \b void\b0  \cf2 onClick(View paramAnonymousView)\par
+      \{\par
+        \ul MainActivity\ulnone .\cf1\b this\cf2\b0 .\ul sendData\ulnone (\cf3 "l"\cf2 );\par
+      \}\par
+    \});\par
+    \ul checkBluetooth\ulnone ();\par
+  \}\par
+  \par
+  \cf1\b public\b0  \b boolean\b0  \cf2 onCreateOptionsMenu(Menu paramMenu)\par
+  \{\par
+    getMenuInflater().inflate(2131492864, paramMenu);\par
+    \cf1\b return\b0  \b true\cf2\b0 ;\par
+  \}\par
+  \par
+  \cf1\b protected\b0  \b void\b0  \cf2 onDestroy()\par
+  \{\par
+    \cf1\b try\par
+\b0     \cf2\{\par
+      \cf1\b this\cf2\b0 .\ul mWorkerThread\ulnone .interrupt();\par
+      \cf1\b this\cf2\b0 .\ul mInputStream\ulnone .close();\par
+      \cf1\b this\cf2\b0 .\ul mOutputStream\ulnone .close();\par
+      \cf1\b this\cf2\b0 .\ul mSocket\ulnone .close();\par
+      \cf1\b super\cf2\b0 .onDestroy();\par
+      \cf1\b return\cf2\b0 ;\par
+    \}\par
+    \cf1\b catch\b0  \cf2 (Exception localException)\par
+    \{\par
+      \cf1\b for\b0  \cf2 (;;) \{\}\par
+    \}\par
+  \}\par
+  \par
+  \cf1\b protected\b0  \b void\b0  \cf2 onPause()\par
+  \{\par
+    \cf1\b super\cf2\b0 .onPause();\par
+    \cf1\b this\cf2\b0 .\ul mSensorManager\ulnone .unregisterListener(\cf1\b this\cf2\b0 );\par
+  \}\par
+  \par
+  \cf1\b protected\b0  \b void\b0  \cf2 onResume()\par
+  \{\par
+    \cf1\b super\cf2\b0 .onResume();\par
+    \cf1\b this\cf2\b0 .\ul mSensorManager\ulnone .registerListener(\cf1\b this\cf2\b0 , \cf1\b this\cf2\b0 .\ul accelerometer\ulnone , 3);\par
+    \cf1\b this\cf2\b0 .\ul mSensorManager\ulnone .registerListener(\cf1\b this\cf2\b0 , \cf1\b this\cf2\b0 .\ul magnetometer\ulnone , 3);\par
+  \}\par
+  \par
+  \cf1\b public\b0  \b void\b0  \cf2 onSensorChanged(SensorEvent paramSensorEvent)\par
+  \{\par
+    \cf1\b if\b0  \cf2 (paramSensorEvent.sensor.getType() == 1) \{\par
+      \cf1\b this\cf2\b0 .\ul mGravity\ulnone  = paramSensorEvent.values;\par
+    \}\par
+    \cf1\b if\b0  \cf2 (paramSensorEvent.sensor.getType() == 2) \{\par
+      \cf1\b this\cf2\b0 .\ul mGeomagnetic\ulnone  = paramSensorEvent.values;\par
+    \}\par
+    \cf1\b if\b0  \cf2 ((\cf1\b this\cf2\b0 .\ul mGravity\ulnone  != \cf1\b null\cf2\b0 ) && (\cf1\b this\cf2\b0 .\ul mGeomagnetic\ulnone  != \cf1\b null\cf2\b0 ))\par
+    \{\par
+      paramSensorEvent = \cf1\b new\b0  \b float\cf2\b0 [9];\par
+      \cf1\b if\b0  \cf2 (SensorManager.getRotationMatrix(paramSensorEvent, \cf1\b new\b0  \b float\cf2\b0 [9], \cf1\b this\cf2\b0 .\ul mGravity\ulnone , \cf1\b this\cf2\b0 .\ul mGeomagnetic\ulnone ))\par
+      \{\par
+        \cf1\b float\cf2\b0 [] arrayOfFloat = \cf1\b new\b0  \b float\cf2\b0 [3];\par
+        SensorManager.getOrientation(paramSensorEvent, arrayOfFloat);\par
+        \cf1\b this\cf2\b0 .\ul pitch\ulnone  = arrayOfFloat[1];\par
+        \cf1\b this\cf2\b0 .\ul data\ulnone  = ((\cf1\b int\cf2\b0 )(\cf1\b this\cf2\b0 .\ul pitch\ulnone  * 100.0F));\par
+        \cf1\b if\b0  \cf2 (\cf1\b this\cf2\b0 .\ul angleFlag\ulnone )\par
+        \{\par
+          \cf1\b if\b0  \cf2 (\cf1\b this\cf2\b0 .\ul data\ulnone  < 0) \{\par
+            \cf1\b break\b0  \cf2 label148;\par
+          \}\par
+          \ul sendData\ulnone (\cf1\b this\cf2\b0 .\ul data\ulnone  + \cf3 "w"\cf2 );\par
+        \}\par
+      \}\par
+    \}\par
+    label148:\par
+    \cf1\b while\b0  \cf2 (\cf1\b this\cf2\b0 .\ul data\ulnone  >= 0) \{\par
+      \cf1\b return\cf2\b0 ;\par
+    \}\par
+    \ul sendData\ulnone (Math.abs(\cf1\b this\cf2\b0 .\ul data\ulnone ) + \cf3 "e"\cf2 );\par
+  \}\par
+  \par
+  \cf1\b void\b0  \cf2 selectDevice()\par
+  \{\par
+    \cf1\b this\cf2\b0 .\ul mDevices\ulnone  = \cf1\b this\cf2\b0 .\ul mBluetoothAdapter\ulnone .getBondedDevices();\par
+    \cf1\b this\cf2\b0 .\ul mPairedDeviceCount\ulnone  = \cf1\b this\cf2\b0 .\ul mDevices\ulnone .size();\par
+    \cf1\b if\b0  \cf2 (\cf1\b this\cf2\b0 .\ul mPairedDeviceCount\ulnone  == 0)\par
+    \{\par
+
+\pard\box\brdrdash\brdrw0 \cbpat5       Toast.makeText(getApplicationContext(), \cf4\b\f1\fs18 "\f2\'c6\'e4\'be\'ee\'b8\'b5\'b5\'c8 \'c0\'e5\'c4\'a1\'b0\'a1 \'be\'f8\'bd\'c0\'b4\'cf\'b4\'d9."\cf2\b0\f0\fs16 , 1).show();\par
+
+\pard       finish();\par
+    \}\par
+    AlertDialog.Builder localBuilder = \cf1\b new\b0  \cf2 AlertDialog.Builder(\cf1\b this\cf2\b0 );\par
+
+\pard\box\brdrdash\brdrw0 \cbpat5     localBuilder.setTitle(\cf4\b\f1\fs18 "\f2\'ba\'ed\'b7\'e7\'c5\'f5\'bd\'ba \'c0\'e5\'c4\'a1 \'bc\'b1\'c5\'c3"\cf2\b0\f0\fs16 );\par
+
+\pard     \cf1\b final\b0  \cf2 Object localObject = \cf1\b new\b0  \cf2 ArrayList();\par
+    Iterator localIterator = \cf1\b this\cf2\b0 .\ul mDevices\ulnone .iterator();\par
+    \cf1\b for\b0  \cf2 (;;)\par
+    \{\par
+      \cf1\b if\b0  \cf2 (!localIterator.hasNext())\par
+      \{\par
+
+\pard\box\brdrdash\brdrw0 \cbpat5         ((List)localObject).add(\cf4\b\f1\fs18 "\f2\'c3\'eb\'bc\'d2"\cf2\b0\f0\fs16 );\par
+
+\pard         localObject = (CharSequence[])((List)localObject).toArray(\cf1\b new\b0  \cf2 CharSequence[((List)localObject).size()]);\par
+        localBuilder.setItems((CharSequence[])localObject, \cf1\b new\b0  \cf2 DialogInterface.OnClickListener()\par
+        \{\par
+          \cf1\b public\b0  \b void\b0  \cf2 onClick(DialogInterface paramAnonymousDialogInterface, \cf1\b int\b0  \cf2 paramAnonymousInt)\par
+          \{\par
+            \cf1\b if\b0  \cf2 (paramAnonymousInt == \ul MainActivity\ulnone .\cf1\b this\cf2\b0 .\ul mPairedDeviceCount\ulnone )\par
+            \{\par
+
+\pard\box\brdrdash\brdrw0 \cbpat5               Toast.makeText(\ul MainActivity\ulnone .\cf1\b this\cf2\b0 .getApplicationContext(), \cf4\b\f1\fs18 "\f2\'bf\'ac\'b0\'e1\'c7\'d2 \'c0\'e5\'c4\'a1\'b8\'a6 \'bc\'b1\'c5\'c3\'c7\'cf\'c1\'f6 \'be\'ca\'be\'d2\'bd\'c0\'b4\'cf\'b4\'d9."\cf2\b0\f0\fs16 , 1).show();\par
+
+\pard               \ul MainActivity\ulnone .\cf1\b this\cf2\b0 .finish();\par
+              \cf1\b return\cf2\b0 ;\par
+            \}\par
+            \ul MainActivity\ulnone .\cf1\b this\cf2\b0 .\ul connectToSelectedDevice\ulnone (localObject[paramAnonymousInt].toString());\par
+          \}\par
+        \});\par
+        localBuilder.setCancelable(\cf1\b false\cf2\b0 );\par
+        localBuilder.create().show();\par
+        \cf1\b return\cf2\b0 ;\par
+      \}\par
+      ((List)localObject).add(((BluetoothDevice)localIterator.next()).getName());\par
+    \}\par
+  \}\par
+  \par
+  \cf1\b void\b0  \cf2 sendData(String paramString)\par
+  \{\par
+    paramString = paramString + \cf1\b this\cf2\b0 .\ul mStrDelimiter\ulnone ;\par
+    \cf1\b try\par
+\b0     \cf2\{\par
+      \cf1\b this\cf2\b0 .\ul mOutputStream\ulnone .write(paramString.getBytes());\par
+      \cf1\b return\cf2\b0 ;\par
+    \}\par
+    \cf1\b catch\b0  \cf2 (Exception paramString)\par
+    \{\par
+
+\pard\box\brdrdash\brdrw0 \cbpat5       Toast.makeText(getApplicationContext(), \cf4\b\f1\fs18 "\f2\'b5\'a5\'c0\'cc\'c5\'cd \'c0\'fc\'bc\'db \'c1\'df \'bf\'c0\'b7\'f9 \'b9\'df\'bb\'fd."\cf2\b0\f0\fs16 , 1).show();\par
+
+\pard       finish();\par
+    \}\par
+  \}\par
+\}\par
+
+\pard\sa200\sl276\slmult1\cf0\f3\fs20\lang18\par
+}
+ 
