@@ -69,5 +69,5 @@
             android:scaleType="fitCenter"
             app:srcCompat="@drawable/btn4" />
 
-    </LinearLayout>
+    </LinearLayout> 
 </LinearLayout>
